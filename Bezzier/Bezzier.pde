@@ -33,13 +33,14 @@ void control(ArrayList<PVector> points) {
   }
 }
 
-void bezier(ArrayList<PVector> points, float step) {
+ArrayList<PVector> bezier(ArrayList<PVector> points, float step) {
 
-  if (points.size() == 0) return;
+  if (points.size() == 0) return new ArrayList<PVector>();
 
   int n = points.size()-1;
   float x = 0, y = 0;
   float px = ((PVector)points.get(0)).x, py = ((PVector)points.get(0)).y;
+  ArrayList<PVector> result = new ArrayList();
 
   for (float t = 0; t <= 1; t+= step) {
     for (int i = 0; i <= n; i++) {
@@ -49,9 +50,11 @@ void bezier(ArrayList<PVector> points, float step) {
     line(px, py, x, y);
     px = x;
     py = y;
+    result.add(new PVector(x, y));
     x = 0;
     y = 0;
   }
+  return result;
 }
 
 boolean isControlEnabled = true;
@@ -108,13 +111,35 @@ void mouseReleased() {
   locked = false;
 }
 
+PVector getClosestToList(PVector point, ArrayList<PVector> list) {
+  if (list.size() == 0) return point;
+  PVector closest = null;
+  float distance = Float.MAX_VALUE;
+  for (PVector elem : list) {
+    float current = PVector.dist(point, elem);
 
+    if (current < distance) {
+      closest = elem;
+      distance = current;
+    }
+  }
+  return closest;
+}
+
+PVector mouse = new PVector(mouseX, mouseY);
 
 void draw() {
+  mouse.x = mouseX;
+  mouse.y = mouseY;
   background(255);
   fill(color(255, 0, 0));
   stroke(color(255, 0, 0));
   if (isControlEnabled) control(points);
   stroke(color(0, 0, 0));
-  bezier(points, 0.005);
+  ArrayList<PVector> bezierPoints = bezier(points, 0.01); //<>//
+  stroke(color(0, 255, 0));
+  control(bezierPoints); //<>//
+  stroke(color(0, 0, 255));
+  PVector closest = getClosestToList(mouse, bezierPoints); //<>//
+  line(mouseX, mouseY, closest.x, closest.y);
 }
