@@ -30,6 +30,6 @@ class DotWalker {
 void draw() {
   PVector pos = walker.get();
   fill(0);
-  point(pos.x, pos.y);
+  rect(pos.x, pos.y,4,4);
   walker.update();
 }
