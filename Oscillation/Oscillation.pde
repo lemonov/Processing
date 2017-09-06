@@ -9,14 +9,21 @@ void rotatePoint(PVector point, PVector pivot, float angle) {
   // rotate point
   float xnew = point.x * c - point.y * s;
   float ynew = point.x * s + point.y * c;
-
+  PVector start = new PVector(point.x, point.y);
+  PVector end = new PVector(point.x, point.y);
   // translate point back:
   point.x = xnew + pivot.x;
   point.y = ynew + pivot.y;
+  PVector rot = new PVector(xnew, ynew);
+  rot.mult(10);
+  end.add(PVector.mult(rot, 10));
+  stroke(color(0, 0, 255));
+  arrow(start.x, start.y, end.x, end.y);
 }
 
 void setup() {
-  size(1000, 1000);  
+  //size(1000, 1000);
+  fullScreen();
   background(255);
 }
 
@@ -30,22 +37,45 @@ void drawPoint(PVector p) {
 
 void addCentrifugalForce(PVector point, PVector pivot, float force, float constrain) {
   PVector centrifugalForce = PVector.sub(point, pivot);
+  centrifugalForce.normalize();
+  centrifugalForce.mult(force);
   if (centrifugalForce.mag() <= constrain) {
-    centrifugalForce.normalize();
-    centrifugalForce.mult(force);
+    PVector start = new PVector(point.x, point.y);
+    PVector end = new PVector(point.x, point.y);
+    end.add(PVector.mult(centrifugalForce, 10));
     point.add(centrifugalForce);
+    stroke(color(255, 0, 0));
+    arrow(start.x, start.y, end.x, end.y);
   }
 }
 
-void addSpringResistance(PVector point, PVector pivot, float force) {
+void addSpringResistance(PVector point, PVector pivot, float elasticity) {
   PVector forceVect = PVector.sub(point, pivot);
   if (forceVect.mag() > 0) {
+    float force = forceVect.mag()*elasticity;
+    
     forceVect.normalize();
     forceVect.mult(-1);
     forceVect.mult(force);
+    PVector start = new PVector(point.x, point.y);
+    PVector end = new PVector(point.x, point.y);
+    end.add(PVector.mult(forceVect, 10));
     point.add(forceVect);
+    stroke(color(0, 255, 0));
+    arrow(start.x, start.y, end.x, end.y);
   }
 }
+
+void arrow(float x1, float y1, float x2, float y2) {
+  line(x1, y1, x2, y2);
+  pushMatrix();
+  translate(x2, y2);
+  float a = atan2(x1-x2, y2-y1);
+  rotate(a);
+  line(0, 0, -10, -10);
+  line(0, 0, 10, -10);
+  popMatrix();
+} 
 
 float cForce = 0;
 boolean isPressed = false;
@@ -70,7 +100,7 @@ void draw() {
   }
   fill(color(255, 0, 0));
   line(mid.x, mid.y, end.x, end.y);
-  rotatePoint(end, mid, 0.1);
+  rotatePoint(end, mid, 0.001);
   addCentrifugalForce(end, mid, cForce, 200);
-  addSpringResistance(end, mid, 2);
+  addSpringResistance(end, mid, 0.1);
 }
