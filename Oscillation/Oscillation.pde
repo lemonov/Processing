@@ -21,24 +21,56 @@ void setup() {
 }
 
 PVector mid = new PVector(500, 500);
-PVector end = new PVector(500, 510);
+PVector end = new PVector(500, 550);
 
 void drawPoint(PVector p) {
   fill(0);
   ellipse(p.x, p.y, 20, 20);
 }
 
-void addCentrifugalForce(PVector point, PVector pivot, float force) {
+void addCentrifugalForce(PVector point, PVector pivot, float force, float constrain) {
   PVector centrifugalForce = PVector.sub(point, pivot);
-  centrifugalForce.normalize();
-  centrifugalForce.mult(force);
-  point.add(centrifugalForce);
+  if (centrifugalForce.mag() <= constrain) {
+    centrifugalForce.normalize();
+    centrifugalForce.mult(force);
+    point.add(centrifugalForce);
+  }
 }
 
+void addSpringResistance(PVector point, PVector pivot, float force) {
+  PVector forceVect = PVector.sub(point, pivot);
+  if (forceVect.mag() > 0) {
+    forceVect.normalize();
+    forceVect.mult(-1);
+    forceVect.mult(force);
+    point.add(forceVect);
+  }
+}
+
+float cForce = 0;
+boolean isPressed = false;
+
+void mousePressed() {
+  isPressed = true;
+}
+
+void mouseReleased() {
+  isPressed = false;
+}
+
+
 void draw() {
-  //background(255);
+  background(255);
   drawPoint(mid);
   drawPoint(end);
+  if (isPressed) {
+    cForce+=0.1;
+  } else {
+    cForce = 0;
+  }
+  fill(color(255, 0, 0));
+  line(mid.x, mid.y, end.x, end.y);
   rotatePoint(end, mid, 0.1);
-  addCentrifugalForce(end, mid, 1);
+  addCentrifugalForce(end, mid, cForce, 200);
+  addSpringResistance(end, mid, 2);
 }
