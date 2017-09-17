@@ -1,24 +1,17 @@
 void rotatePoint(PVector point, PVector pivot, float angle) {
   float s = sin(angle);
   float c = cos(angle);
+  point.sub(pivot);
+  PVector rot = new PVector(point.x * c - point.y * s, point.x * s + point.y * c);
+  PVector transRot = PVector.add(pivot, rot);
+  point.x = transRot.x;
+  point.y = transRot.y;
+}
 
-  // translate point back to origin:
-  point.x -= pivot.x;
-  point.y -= pivot.y;
-
-  // rotate point
-  float xnew = point.x * c - point.y * s;
-  float ynew = point.x * s + point.y * c;
-  PVector start = new PVector(point.x, point.y);
-  PVector end = new PVector(point.x, point.y);
-  // translate point back:
-  point.x = xnew + pivot.x;
-  point.y = ynew + pivot.y;
-  PVector rot = new PVector(xnew, ynew);
-  rot.mult(10);
-  end.add(PVector.mult(rot, 10));
-  stroke(color(0, 0, 255));
-  arrow(start.x, start.y, end.x, end.y);
+float angle(PVector v1, PVector v2) {
+  float a = atan2(v2.y, v2.x) - atan2(v1.y, v1.x);
+  if (a < 0) a += TWO_PI;
+  return a;
 }
 
 void setup() {
@@ -40,42 +33,26 @@ void addCentrifugalForce(PVector point, PVector pivot, float force, float constr
   centrifugalForce.normalize();
   centrifugalForce.mult(force);
   if (centrifugalForce.mag() <= constrain) {
-    PVector start = new PVector(point.x, point.y);
     PVector end = new PVector(point.x, point.y);
     end.add(PVector.mult(centrifugalForce, 10));
     point.add(centrifugalForce);
-    stroke(color(255, 0, 0));
-    arrow(start.x, start.y, end.x, end.y);
   }
 }
 
 void addSpringResistance(PVector point, PVector pivot, float elasticity) {
   PVector forceVect = PVector.sub(point, pivot);
   if (forceVect.mag() > 0) {
-    float force = forceVect.mag()*elasticity;
-    
+    float force = forceVect.mag()*elasticity ;
     forceVect.normalize();
     forceVect.mult(-1);
     forceVect.mult(force);
-    PVector start = new PVector(point.x, point.y);
-    PVector end = new PVector(point.x, point.y);
-    end.add(PVector.mult(forceVect, 10));
     point.add(forceVect);
-    stroke(color(0, 255, 0));
-    arrow(start.x, start.y, end.x, end.y);
   }
 }
 
-void arrow(float x1, float y1, float x2, float y2) {
-  line(x1, y1, x2, y2);
-  pushMatrix();
-  translate(x2, y2);
-  float a = atan2(x1-x2, y2-y1);
-  rotate(a);
-  line(0, 0, -10, -10);
-  line(0, 0, 10, -10);
-  popMatrix();
-} 
+PVector polar2Cartesian(float r, float theta) {
+   return new PVector(r * cos(theta), r * sin(theta)); 
+}
 
 float cForce = 0;
 boolean isPressed = false;
@@ -88,19 +65,25 @@ void mouseReleased() {
   isPressed = false;
 }
 
+float angle = 0;
+float r = 0;
 
 void draw() {
-  background(255);
-  drawPoint(mid);
-  drawPoint(end);
-  if (isPressed) {
-    cForce+=0.1;
-  } else {
-    cForce = 0;
-  }
-  fill(color(255, 0, 0));
-  line(mid.x, mid.y, end.x, end.y);
-  rotatePoint(end, mid, 0.001);
-  addCentrifugalForce(end, mid, cForce, 200);
-  addSpringResistance(end, mid, 0.1);
+  
+  translate(500,500);
+  drawPoint(polar2Cartesian(100, angle));
+  if(isPressed) {angle+=0.1; r++}
+  
+  //drawPoint(mid);
+  //drawPoint(end);
+  //if (isPressed) {
+  //  cForce+=0.1;
+  //} else {
+  //  cForce = 0;
+  //}
+  //fill(color(255, 0, 0));
+  //line(mid.x, mid.y, end.x, end.y);
+  //rotatePoint(end, mid, radians(15));
+  //addCentrifugalForce(end, mid, cForce, 10);
+  //addSpringResistance(end, mid, 0.01);
 }

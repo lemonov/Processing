@@ -6,6 +6,7 @@ class Bob {
   float dAngle = 0;
   float d2Angle = 0;
   float slow = 1;
+  float cl = 0;
 
   Bob(float mass, float len, float startAngle) {
     this.mass = mass;
@@ -22,6 +23,7 @@ class Bob {
   }
 
   void display() {
+    fill(cl);
     ellipse(location.x, location.y, mass*10, mass*10);
   }
 }
@@ -55,10 +57,10 @@ class DPendulum {
   void display() {
     stroke(0);
     fill(120);
-    line(pivot.x, pivot.y, bob1.location.x, bob1.location.y);
-    line(bob1.location.x, bob1.location.y, bob2.location.x, bob2.location.y);
+    //line(pivot.x, pivot.y, bob1.location.x, bob1.location.y);
+    //line(bob1.location.x, bob1.location.y, bob2.location.x, bob2.location.y);
 
-    bob1.display();
+    //bob1.display();
     bob2.display();
   }
 
@@ -87,11 +89,11 @@ void setup() {
 
 
 void draw() {
-  background(255);
+  //background(255);
   frameRate(60);
   pendulum.update();
   pendulum.display();
   textSize(12);
-  text("timeAroundUpperStability " + pendulum.timeAroundUpperStability + " ms", 20, 20);
-  text("distanceToStability " + pendulum.distanceToStability + " px", 20, 40);
+  //text("timeAroundUpperStability " + pendulum.timeAroundUpperStability + " ms", 20, 20);
+  //text("distanceToStability " + pendulum.distanceToStability + " px", 20, 40);
 }
