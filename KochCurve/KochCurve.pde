@@ -53,9 +53,8 @@ class Line { //<>// //<>// //<>// //<>// //<>//
 class Curve {
   ArrayList<Line> lines = new ArrayList();
 
-  Curve() {
-    Line init = new Line(new PVector(0, 250), new PVector(250, 250));
-    lines.add(init);
+  Curve(Line initial) {
+    lines.add(initial);
   }
 
   void next() {
@@ -76,9 +75,19 @@ class Curve {
   }
 }
 
-Curve curve = new Curve();
-Curve curveL = new Curve();
-Curve curveR = new Curve();
+PVector getThird(PVector p1, PVector p2){
+    PVector p3 = PVector.sub(p2,p1);
+    p3.rotate(radians(60));
+    return p3.add(p2);
+}
+
+Line init = new Line(new PVector(0, 250), new PVector(500, 250));
+Line initL = new Line(new PVector(0, 250), getThird(new PVector(0, 250), new PVector(500, 250)));
+Line initR = new Line(new PVector(500, 250), getThird(new PVector(0, 250), new PVector(500, 250)));
+
+Curve curve = new Curve(init);
+Curve curveL = new Curve(initL);
+Curve curveR = new Curve(initR);
 
 void setup() {
   size(500, 500);
