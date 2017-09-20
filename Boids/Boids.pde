@@ -26,7 +26,7 @@ void keyPressed() {
 class Boid {
   PVector location, velocity, acceleration;
   //float angle, angularVelocity, angularAcceleration;
-  float allignmentCoeff = 0.00001;
+  float allignmentCoeff = 0.1;
   float cohesionCoeff = 1;
   float separationCoeff = 0.1;
   float mass;
@@ -79,12 +79,24 @@ class Boid {
 
   void applyAllignment(ArrayList<Boid> neighbours) {
     for (Boid n : neighbours) {
-      PVector force = n.acceleration.copy();
+      PVector force = n.velocity.copy();
       force.normalize();
       force.mult(allignmentCoeff);
       applyForce(force);
     }
   }
+
+  void applyAllignment2(ArrayList<Boid> neighbours) {
+    PVector sum = new PVector(0, 0);
+    for (Boid n : neighbours) {
+      sum.add(n.velocity);
+    }
+    sum.div(neighbours.size());
+    sum.normalize();
+    sum.mult(allignmentCoeff);
+    applyForce(sum);
+  }
+
 
   void applyCohesion(ArrayList<Boid> neighbours) {
     PVector attraction = new PVector(0, 0);
@@ -110,11 +122,11 @@ class Boid {
   }
 
   void run(ArrayList<Boid> neighbours) {
-    acceleration.x = random(-0.1, 0.1);
-    acceleration.y = random(-0.1, 0.1);
+    //acceleration.x = random(-0.1, 0.1);
+    //acceleration.y = random(-0.1, 0.1);
 
     if (isSeparationEnabled)applySeparation(neighbours);
-    if (isAlignmentEnabled)applyAllignment(neighbours);
+    if (isAlignmentEnabled)applyAllignment2(neighbours);
     if (isCohesionEnabled)applyCohesion(neighbours);
     display();
     update();
@@ -162,10 +174,15 @@ void setup() {
   size(1000, 1000);
   background(0);
   flock = new Flock();
-  addBoids(200);
+  addBoids(1200);
 }
 
 void draw() {
   background(0);
   flock.run();
+  textSize(16);
+  fill(color(255, 0, 0));
+  text("Alignment: " + isAlignmentEnabled, 30, 30);
+  text("Cohesion: " + isCohesionEnabled, 30, 50);
+  text("Separation: " + isSeparationEnabled, 30, 70);
 }
